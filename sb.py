@@ -39,6 +39,7 @@ stopwords=["a", "about", "above", "above", "across", "after", "afterwards", "aga
 "whether", "which", "while", "whither", "who", "whoever", "whole", "whom", "whose", "why", "will", "with", "within", "without", "would", "yet", "you", "your", "yours", 
 "yourself", "yourselves", "the"]
 
+
 """
 x = [2, 3, 4, 5, 6]
     y = map(lambda v : v * 5, x)
@@ -123,15 +124,15 @@ def forward_propogate(network , input):
 def back_propogate(network , input , output ):
   net_output = forward_propogate(network,input)
   errors=(output-net_output[-1]).T
+  for zz in range(1):
+    for i in reversed(range(len(network))):
+      if i!=0:
+        errorb=np.multiply(np.dot(errors,network[i][0]),tda(net_output[i]).T)
 
-  for i in reversed(range(len(network))):
-    if i!=0:
-      errorb=np.multiply(np.dot(errors,network[i][0]),tda(net_output[i]).T)
-
-    network[i][0]+=0.1*np.dot(errors.T,net_output[i].T)
-    network[i][1]+=0.1*errors.T
-    errors=errorb
-  return net_output
+      network[i][0]+=0.1*np.dot(errors.T,net_output[i].T)
+      network[i][1]+=0.1*errors.T
+      errors=errorb
+    return net_output
 
 def classify(x):
     return True if x>0.5 else False
@@ -150,22 +151,23 @@ def N_NET(network,train_V,test_V,class_train_V,class_test_V):
   acc_train=[]
   mse_test=[]
   acc_test=[]
-  for epochs in range(5):
-    for i in range(len(train_V)):
-      arr=np.array([class_train_V[i]==1,class_train_V[i]==0]).reshape((2,1))
-      net_output=back_propogate(network,train_V[i].T,arr)
-      if i%1000==0:
-        print(i,class_train_V[i],net_output[-1])
-    print('epoch',epochs+1)#,'\ntrain mean squared error:',mse/len(train),'train accuracy:',accuracy/len(train))
-    epoch.append(int(epochs+1))
-    x,y=predict(train_V,network,class_train_V)
-    print('train mean squared error:',y,'train accuracy:',x)
-    mse_train.append(y)
-    acc_train.append(x)
-    x,y=predict(test_V,network,class_test_V)
-    print('test mean squared error:',y,'test accuracy:',x)
-    mse_test.append(y)
-    acc_test.append(x)
+  for zz1 in range(1):
+    for epochs in range(5):
+      for i in range(len(train_V)):
+        arr=np.array([class_train_V[i]==1,class_train_V[i]==0]).reshape((2,1))
+        net_output=back_propogate(network,train_V[i].T,arr)
+        if i%1000==0:
+          print(i,class_train_V[i],net_output[-1])
+      print('epoch',epochs+1)#,'\ntrain mean squared error:',mse/len(train),'train accuracy:',accuracy/len(train))
+      epoch.append(int(epochs+1))
+      x,y=predict(train_V,network,class_train_V)
+      print('train mean squared error:',y,'train accuracy:',x)
+      mse_train.append(y)
+      acc_train.append(x)
+      x,y=predict(test_V,network,class_test_V)
+      print('test mean squared error:',y,'test accuracy:',x)
+      mse_test.append(y)
+      acc_test.append(x)
     
   return epoch , mse_train , acc_train , mse_test , acc_test
 
